@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+
+   <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Victims Dashboard</title>
+    </head>
+    
+    <body>
+        
+        <div id = "MainContainer">
+
+            <div id = "VictimCountContainer" class = "Containers">
+
+                <div id = "VictimCount"> </div>
+
+                <div id = "VictimTitle" class = "TitleContainers" > Victims </div>
+
+            </div>
+
+            <div id = "ConnectedDevicesContainer" class = "Containers">
+
+                <div id = "ConnectedDevicesTitle" class = "TitleContainers">  Connected Devices </div>
+
+                <div id = "ConnectedDevicesContent"> </div>
+
+            </div>
+
+            <div id = "VictimsContainer" class = "Containers">
+
+                <div id = "VictimsTitle" class = "TitleContainers">  Victim MAC Addresses </div>
+
+                <div id = "VictimsContent"> </div>
+
+            </div>
+                
+            <form action = "/NewSSID" method = "post" id = "FormContainer">
+
+                <div id = "MessageContainer" class = "Containers">
+                    
+                    <div class = "TitleContainers"> Update SSID </div>
+                    
+                    <input type = "text" id = "SSIDInput" name = "SSIDName" />
+                    <button type = "submit" id = "SendButton" class = "Buttons"> Update </button>
+
+                </div>
+
+            </form>
+
+            <div id = "DeleteVictimsContainer" class = "Containers">
+                    
+                <button type = "button" id = "DeleteVictimsButton" class = "Buttons"> Delete Victims </button>
+
+            </div>
+
+        </div>
+
+        
+
+    </body>
+
+    <script>
+
+        const VictimCount = document.getElementById("VictimCount");
+
+        document.getElementById("DeleteVictimsButton").addEventListener("click", async (event) => {
+
+            const ThisButton = event.currentTarget;
+
+            ThisButton.disabled = true;
+
+            const VictimsContent = document.getElementById("VictimsContent");
+            
+            try {
+
+                const Res = await fetch("/DeleteVictims", {method: "DELETE"} );
+
+                if (!Res.ok) {
+                    throw new Error("Could not fetch /DeleteVictims");
+                }
+
+                const Data = await Res.text();
+
+                console.log(Data);
+
+                if (VictimsContent) VictimsContent.replaceChildren();
+       
+
+
+
+            } catch (error) {
+
+                console.error(error);
+
+
+            } finally {
+                ThisButton.disabled = false;
+
+            }
+
+        })
+
+        const GetVictimCount =  async () => {
+
+            try {
+                const Res = await fetch("/GetVictimCount", {method : "GET"});
+
+                if (!Res.ok) {
+                    throw new Error("Error in Getting /VictimCount");
+                }
+
+                const Data = await Res.text();
+                
+                VictimCount.textContent = Data;
+
+            } catch (error) {
+
+                VictimCount.textContent = -1;
+                
+
+            }
+
+
+        }
+        
+        const GetConnectedDevices = async() => {
+            
+            try {
+                const Res = await fetch("/GetConnectedDevices", {method : "GET"});
+
+                if (!Res.ok) {
+                    throw new Error("Error in Getting /GetConnectedDevices");
+                }
+
+                const Data = await Res.json();
+
+                const ConnectedDevicesComponent = document.getElementById("ConnectedDevicesContent");
+
+                ConnectedDevicesComponent.innerHTML = ""; // Clear previous children
+
+                for ( const Obj of Object.values(Data) ) {
+                    
+                    const Component = `
+
+                        <div class = "DeviceContainer">
+
+                            <div class = "DeviceInfoContainer">
+                                
+                                <div class = "DeviceInfoTitle">
+                                    IP Address:
+                                </div>
+
+                                <div class = "DeviceInfoContent">
+                                    ${Obj.IP}
+                                </div>
+
+                            </div>
+
+                            <div class = "DeviceInfoContainer">
+
+                                <div class = "DeviceInfoTitle">
+                                    MAC Address:
+                                </div>
+
+                                <div class = "DeviceInfoContent">
+                                    ${Obj.MAC}
+                                </div>
+                            
+                            </div>
+
+
+                        </div>
+                    
+                    `;
+
+                    ConnectedDevicesComponent.insertAdjacentHTML("beforeend", Component);
+
+
+
+                }
+                
+                
+                
+
+            } catch (error) {
+
+                console.log(error);
+                
+
+            }
+
+        }
+        
+        const GetVictims = async () => {
+
+            try {
+                const Res = await fetch("/GetVictims", {method : "GET"});
+
+                if (!Res.ok) {
+                    throw new Error("Error in Getting /GetVictims");
+                }
+
+                const Data = await Res.text();
+
+                const VictimArray = Data.split(/[\r\n]+/);
+
+                const VictimsComponent = document.getElementById("VictimsContent");
+
+                VictimsComponent.innerHTML = "";
+
+
+                for ( const VictimString of VictimArray ) {
+
+                    if (VictimString == "" || VictimString.length == 0) continue;
+                    
+                    const Component = `
+
+                        <div class = "DeviceContainer">
+
+                            <div class = "DeviceInfoContainer">
+                                
+                                <div class = "TitleContainers">
+                                    ${VictimString}
+                                </div>
+
+                            </div>
+
+                        </div>
+                    
+                    `;
+
+                    VictimsComponent.insertAdjacentHTML("beforeend",Component );
+
+                }
+                
+                
+                
+
+            } catch (error) {
+
+                console.log(error);
+
+            }
+
+        }
+
+        GetVictimCount();
+        setInterval(GetVictimCount, 1000);
+
+        GetConnectedDevices();
+        setInterval(GetConnectedDevices, 1000);
+
+        GetVictims();
+        setInterval(GetVictims, 1000);
+
+
+
+    </script>
+
+
+    <style>
+
+        @font-face {
+            font-family: 'Onest';
+
+            font-weight: 100 900; 
+
+            src: url('/Views/Onest-VariableFont_wght.ttf') format('truetype-variations'),
+                url('/Views/Onest-VariableFont_wght.ttf') format('truetype');
+
+            font-style: normal;
+        }
+
+        body {
+
+            color: #edeae9;
+            
+            background-color: #181c1f;
+
+            font-family: 'Onest', Arial, Helvetica, sans-serif;
+            
+
+            height: 100vh;
+            width: 100vw;
+
+
+        
+        }
+        body::-webkit-scrollbar {
+            display: none;
+        }
+
+        #MainContainer {
+
+            height: 100%;
+            width: 100%;
+
+            
+            gap: 10px;
+
+            display: flex;
+            flex-direction: column;
+            align-items:center;
+            justify-content: flex-start;
+
+            padding-top: 20px;
+
+            padding-bottom: 150px;
+
+            
+
+            overflow-y: auto;
+        }
+
+        #MainContainer::-webkit-scrollbar {
+            display: none;
+        }
+
+        .Containers {
+            background-color: #212529;
+
+            border-radius: 20px;
+            
+            width: 80%;
+            max-width: 500px;
+
+            padding: 25px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+
+           
+        }
+
+        .TitleContainers {
+            font-size: clamp(16px, 1.5vw, 32px);
+        }
+
+        #VictimCountContainer {
+
+            gap: 10%;
+
+        }
+
+
+        #VictimCount {
+
+            font-weight: bolder;
+            font-size: clamp(16px, 1.66vw, 38px);
+        }
+
+        
+        #ConnectedDevicesContainer {
+            
+            height: 40%;
+            gap: 5%;
+            
+        }
+
+        #ConnectedDevicesTitle {
+            height: 10%;
+
+        }
+
+        #ConnectedDevicesContent {
+
+            width: 90%;
+            height: 90%;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+
+            overflow: scroll;
+
+            gap: 10px;
+
+
+        }
+        #ConnectedDevicesContent::-webkit-scrollbar {
+            display: none;
+        }
+
+
+        .DeviceContainer {
+         
+            width: 100%;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+
+            background-color: #edeae9;
+
+            color:#212529;
+
+            border-radius: 20px;
+
+            
+            padding-top: 20px;
+            padding-bottom: 20px;
+
+            gap: 10px;
+
+
+
+
+        }
+
+        .DeviceInfoContainer {
+            width: 100%;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            gap: 10px;
+            
+            
+        }
+
+        .DeviceInfoTitle {
+
+            font-size: clamp(12px, 1vw, 24px); 
+
+        }
+
+        .DeviceInfoContent {
+            
+            font-size: clamp(12px, 0.7vw, 24px); 
+            
+        }
+
+        #VictimsContainer {
+            height: 40%;
+            gap: 5%;
+        }
+
+        #VictimsContent {
+
+            width: 90%;
+            height: 90%;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+
+            overflow: scroll;
+
+            gap: 10px;
+
+
+        }
+        #VictimsContent::-webkit-scrollbar {
+            display: none;
+        }
+
+        
+        
+
+        #FormContainer {
+            
+            width: 100%;
+            height: 30%;
+
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            margin: 10px;
+
+        }
+
+
+        #MessageContainer {
+            
+            width: 80%;
+
+            height: 80%;
+
+            gap: 15%;
+            
+          
+            font-size: clamp(16px, 1.5vw, 32px);
+
+            font-family: 'Onest', Arial, Helvetica, sans-serif;
+
+
+        }
+
+        #SSIDInput {
+            
+
+            width: 60%;
+            min-width: 250px;
+            height: 20%;
+
+            border: none;
+            border-radius: 20px;
+            
+            text-align: center;
+
+            background-color: #212529;
+
+            border: #edeae9 1px solid;
+
+            border-radius: 20px;
+
+            color: #edeae9;
+
+            font-size: clamp(16px, 1vw, 32px);
+
+            font-family: 'Onest', Arial, Helvetica, sans-serif;
+
+
+
+
+        }
+
+        .Buttons {
+            padding: 10px;
+            padding-left: 20px;
+            padding-right: 20px;
+
+            background-color: #edeae9;
+
+            font-size: clamp(16px, 1vw, 32px);
+
+            font-family: 'Onest', Arial, Helvetica, sans-serif;
+
+
+            color: #212529;
+
+            border: none;
+            
+            border-radius: 20px;
+
+            padding-left: 25px;
+            padding-right: 25px;
+
+            cursor: pointer;
+        }
+
+
+
+    </style>
+   </html>

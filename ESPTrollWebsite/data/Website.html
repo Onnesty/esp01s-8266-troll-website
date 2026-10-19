@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+
+   <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>FREE_WIFI</title>
+    </head>
+    
+    <body>
+
+        <div id = "Overlay">
+            
+            <div id = "Loader"></div>
+
+            <div id = "MessageContainer"> 
+                
+              Experiencing high traffic. <br/> Reload is recommended 
+
+              <button id = "Button"> Reload </button>
+
+            </div>
+            
+
+        </div>
+        
+        <div id = "Container">
+            
+            <audio id = "Audio" autoplay loop src = "/Views/KrazySound.mp3"> </audio>
+
+            <img id = "Image" alt = "You broke as hell" src = "/Views/EspTroll.jpg"></img>
+
+        </div>
+
+        
+        
+      
+    </body>
+
+    <script>
+
+        const AudioElement = document.getElementById("Audio");
+        const ButtonElement = document.getElementById("Button");
+
+        ButtonElement.addEventListener("click", async () => {
+
+          const Overlay = document.getElementById("Overlay");
+
+          Overlay.style.display = "none";
+
+          AudioElement.play();
+
+          await fetch("/NewVictim", {method : "POST"});
+        })
+
+
+        setTimeout( () => {
+          const Loader = document.getElementById("Loader");
+          const Message = document.getElementById("MessageContainer");
+
+          Loader.style.display = "none";
+          Message.style.display = "flex";
+        }, 3000)
+
+    </script>
+
+
+    <style>
+      body {
+        display: flex;
+        background-color: #1f1f1f;
+        align-items:center;
+        justify-content: center;
+
+        height: 100vh;
+        width: 100vw;
+
+        overflow: hidden;
+
+        position: relative;
+      }
+
+      #Container {
+        z-index: 1;
+
+        display: flex;
+        background-color: #1f1f1f;
+        align-items:center;
+        justify-content: center;
+
+
+
+        height: 100%;
+        width: 100%;
+
+        overflow: hidden;
+      }
+
+      #Image {
+        
+        height: 80%;
+        width: 90%;
+        aspect-ratio: 1/1;
+
+        object-fit: contain;
+
+      }
+
+      #Overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+
+        z-index: 2;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        background-color: white;
+
+        width: 100%;
+        height: 100%;
+
+      }
+
+      #MessageContainer {
+        
+        font-family: Verdana, Geneva, Tahoma, sans-serif;
+        font-size: 16px;
+        color: black ;
+
+        text-align: center;
+
+        height: 15%;
+        width: 80%;
+        max-width: 500px;
+
+        border: lightslategray 2px solid;
+        
+        
+
+        display: none;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+
+    
+        border-radius: 20px;
+     
+        background-color: rgb(219, 217, 217);
+
+        gap:20px
+
+        
+
+      }
+      #Button {
+
+        border-radius: 20px;
+        border: none;
+
+        cursor: pointer;
+
+        padding: 15px;
+
+        width: 25%;
+        max-width: 200px;
+
+        background-color: #2d8b2a;
+        opacity: 80%;
+
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 14px;
+        color: black;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        
+
+      }
+
+      #Loader {
+        width: 50px;
+        padding: 8px;
+        aspect-ratio: 1;
+        border-radius: 50%;
+        background: #2d8b2a;
+        --_m: 
+          conic-gradient(#0000 10%,#000),
+          linear-gradient(#000 0 0) content-box;
+        -webkit-mask: var(--_m);
+                mask: var(--_m);
+        -webkit-mask-composite: source-out;
+                mask-composite: subtract;
+        animation: l3 1s infinite linear;
+      }
+      @keyframes l3 {to{transform: rotate(1turn)}}
+    </style>
+   </html>
